@@ -33,24 +33,15 @@
 
 ## 方式一：GitHub Actions 云端定时运行（推荐）
 
-无需服务器、无需开电脑，每天自动签到。
+无需服务器、无需开电脑，每天自动签到。获取代码有两种方式，任选其一：
 
-### 步骤
+- **方式 A：直接 Fork 本仓库**（最简单，推荐）：后续上游更新可一键同步；注意 fork 出的仓库是公开的，但安全性不受影响（见下方说明）
+- **方式 B：新建私有仓库推送**：隐私性更强，但与上游脱钩，后续更新需手动同步
 
-1. **创建私有仓库**：在 GitHub 上新建一个**私有仓库**（Private），将本项目代码推送上去：
+### 方式 A：Fork 后使用（推荐）
 
-   ```bash
-   git init
-   git add .
-   git commit -m "feat: newapi daily checkin"
-   git branch -M main
-   git remote add origin https://github.com/你的用户名/你的仓库名.git
-   git push -u origin main
-   ```
-
-   > ⚠️ 务必使用**私有仓库**，虽然令牌存放在加密 Secrets 中，但私有仓库更安全。
-
-2. **配置 Secrets**：进入仓库页面 → **Settings → Secrets and variables → Actions → Secrets**，点击 **New repository secret**，分别创建：
+1. **Fork**：在本仓库页面右上角点击 **Fork**，创建属于你自己的副本
+2. **配置 Secrets**：在你 fork 的仓库中，进入 **Settings → Secrets and variables → Actions → Secrets**，点击 **New repository secret**，分别创建：
 
    | Name | Value |
    |---|---|
@@ -63,9 +54,35 @@
    |---|---|
    | `NEWAPI_BASE_URL` | 你的站点地址，如 `https://your-site.com` |
 
-4. **启用 Actions**：进入仓库 **Actions** 标签页，如提示启用则点击 **I understand my workflows, go ahead and enable them**。
-
+4. **启用 Actions**：fork 出的仓库默认禁用 Actions。进入你 fork 仓库的 **Actions** 标签页，点击 **I understand my workflows, go ahead and enable them**
 5. **手动测试一次**：Actions → 「每日签到」→ **Run workflow**，查看运行日志，应输出签到结果。
+
+> 💡 后续上游代码更新时，在你 fork 的仓库页面点击 **Sync fork → Update branch** 即可同步。
+
+#### 公开 fork 存放令牌安全吗？
+
+安全。原因：
+
+- Secrets 在 GitHub 上加密存储，不会出现在仓库代码或运行日志中，任何访客都看不到
+- 他人向你的 fork 提交的 PR 无法获取你的 Secrets（GitHub 不会向外部 PR 触发的工作流传入 Secrets）
+- 唯一泄露途径是自行修改工作流主动打印 Secret，正常使用不会发生
+
+如果你仍然介意仓库公开，请使用方式 B。
+
+### 方式 B：新建私有仓库
+
+在 GitHub 上新建一个**私有仓库**（Private），将本项目代码推送上去：
+
+```bash
+git init
+git add .
+git commit -m "feat: newapi daily checkin"
+git branch -M main
+git remote add origin https://github.com/你的用户名/你的仓库名.git
+git push -u origin main
+```
+
+之后同样完成上面的第 2~5 步（配置 Secrets → 可选站点地址 → 启用 Actions → 手动测试）。
 
 ### 运行时间
 
