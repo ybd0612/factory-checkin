@@ -1,0 +1,31 @@
+name: 每日签到
+
+on:
+  schedule:
+    # UTC 时间，即北京时间 08:00 / 16:00 / 24:00
+    # 每天三次：GitHub Actions 定时触发可能延迟或偶尔漏触发，多次运行可确保当天不漏签
+    # （脚本会先查询签到状态，当天已签到则自动跳过，不会重复签到）
+    - cron: '0 0 * * *'
+    - cron: '0 8 * * *'
+    - cron: '0 16 * * *'
+  workflow_dispatch: # 允许手动触发
+
+jobs:
+  checkin:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 安装 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: 执行签到
+        env:
+          NEWAPI_TOKEN: ${{ secrets.NEWAPI_TOKEN }}
+          NEWAPI_USER_ID: ${{ secrets.NEWAPI_USER_ID }}
+          # 站点地址通过仓库 Variables 配置（可选，默认 https://factory.pub）
+          NEWAPI_BASE_URL: ${{ vars.NEWAPI_BASE_URL }}
+        run: python checkin.py
